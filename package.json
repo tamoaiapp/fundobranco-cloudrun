@@ -1,0 +1,13 @@
+{
+  "name": "fundobranco",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.16.0",
+    "express": "^4.19.2"
+  }
+}
