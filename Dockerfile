@@ -1,10 +1,16 @@
 FROM node:20-slim
 
+# dependências de sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3 python3-pip libgomp1 \
+  python3 python3-venv python3-pip libgomp1 \
   && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir rembg pillow
+# cria venv para o rembg
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# instala rembg dentro do venv
+RUN pip install --no-cache-dir rembg pillow
 
 WORKDIR /app
 COPY package.json .
