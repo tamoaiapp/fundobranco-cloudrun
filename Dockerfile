@@ -1,24 +1,29 @@
-FROM node:20-slim
+# Base leve e compatível com onnxruntime
+FROM node:22-slim
 
-# dependências de sistema
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3 python3-venv python3-pip libgomp1 \
+# Dependências do Python (Pillow/onnx/rembg) + certificados
+RUN apt-get update && apt-get install -y \
+  python3 python3-pip python3-venv \
+  libgl1 libglib2.0-0 \
   && rm -rf /var/lib/apt/lists/*
 
-# cria venv para o rembg
+WORKDIR /app
+
+# Instala deps Node primeiro (cache)
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copia o resto
+COPY . .
+
+# VENV python + rembg com backend CPU (instala onnxruntime junto)
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install --no-cache-dir --upgrade pip \
+  && pip install --no-cache-dir "rembg[cpu]" pillow
 
-# instala rembg dentro do venv
-RUN pip install --no-cache-dir rembg pillow
-
-WORKDIR /app
-COPY package.json .
-RUN npm install --omit=dev
-
-COPY index.js .
-COPY bg_remove.py .
-
+# Cloud Run
 ENV PORT=8080
 EXPOSE 8080
-CMD ["npm","start"]
+
+CMD ["node", "index.js"]
