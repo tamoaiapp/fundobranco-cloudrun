@@ -1,13 +1,12 @@
 {
-  "name": "fundobranco-removebg",
-  "version": "1.0.0",
+  "name": "removebg-cloudrun",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "@google-cloud/storage": "^7.14.0",
+    "@google-cloud/storage": "^7.15.2",
     "express": "^4.19.2"
   }
 }
