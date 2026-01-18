@@ -1,23 +1,23 @@
-FROM node:22-bookworm-slim
+FROM python:3.11-slim
 
-# Python + pip
+# libs que o rembg costuma precisar (e evita erro do opencv / pillow)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-venv \
-    && rm -rf /var/lib/apt/lists/*
+    libgl1 libglib2.0-0 \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Node deps
-COPY package.json ./
-RUN npm install --omit=dev
+# cria venv
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Python deps (rembg[cpu] -> onnxruntime)
-COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# App files
-COPY index.js bg_remove.py ./
+COPY . .
 
-ENV PORT=8080
-EXPOSE 8080
-CMD ["npm", "start"]
+# se for FastAPI:
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+
+# se for Flask/Express-like python:
+CMD ["python", "server.py"]
